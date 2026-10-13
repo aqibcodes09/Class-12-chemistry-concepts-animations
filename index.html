@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Castner-Kellner Cell Animation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+        }
+        canvas {
+            background: #ffffff;
+            border: 2px solid #ccc;
+            box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+            margin-top: 10px;
+        }
+        .equations {
+            margin-top: 20px;
+            background: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            display: inline-block;
+            text-align: left;
+            box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+        }
+        .equations h3 {
+            margin-top: 0;
+            color: #0066cc;
+        }
+        ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Castner-Kellner Cell Animation</h1>
+    <p>Electrolysis of Brine for Production of Caustic Soda ($NaOH$), Chlorine ($Cl_2$), and Hydrogen ($H_2$)</p>
+
+    <canvas id="cellCanvas" width="800" height="450"></canvas>
+
+    <div class="equations">
+        <h3>Chemical Equations & Reactions:</h3>
+        <ul>
+            <li><strong>Anode Chamber (Oxidation):</strong> $2Cl^- \rightarrow Cl_2 + 2e^-$ (Chlorine gas released)</li>
+            <li><strong>Cathode Chamber (Amalgam Formation):</strong> $Na^+ + e^- + Hg \rightarrow Na-Hg$ (Sodium-Mercury Amalgam)</li>
+            <li><strong>Decomposer Chamber:</strong> $2Na-Hg + 2H_2O \rightarrow 2NaOH + H_2 + 2Hg$</li>
+        </ul>
+    </div>
+
+    <script>
+        const canvas = document.getElementById("cellCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let mercuryOffset = 0;
+        let bubbleOffset1 = 0;
+        let bubbleOffset2 = 0;
+
+        function drawCell() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // --- Draw Cell Outer Box ---
+            ctx.strokeStyle = "#333";
+            ctx.lineWidth = 3;
+            ctx.strokeRect(100, 80, 600, 280);
+
+            // --- Partition Walls ---
+            ctx.beginPath();
+            ctx.moveTo(350, 80);
+            ctx.lineTo(350, 320);
+            ctx.moveTo(550, 80);
+            ctx.lineTo(550, 320);
+            ctx.stroke();
+
+            // --- Mercury Layer at Bottom ---
+            ctx.fillStyle = "#8c8c8c"; // Mercury color
+            ctx.fillRect(102, 300, 596, 60);
+            
+            // Flow effect lines on mercury
+            ctx.strokeStyle = "#b3b3b3";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            for (let i = 120; i < 680; i += 40) {
+                ctx.moveTo(i + (mercuryOffset % 40), 330);
+                ctx.lineTo(i + 20 + (mercuryOffset % 40), 330);
+            }
+            ctx.stroke();
+
+            // --- Electrodes ---
+            // Carbon Anodes (Left)
+            ctx.fillStyle = "#444";
+            ctx.fillRect(180, 120, 30, 120);
+            ctx.fillRect(260, 120, 30, 120);
+
+            // Iron Cathode / Grid (Right)
+            ctx.fillStyle = "#708090";
+            ctx.fillRect(600, 140, 40, 140);
+
+            // --- Labels ---
+            ctx.fillStyle = "#000";
+            ctx.font = "bold 14px Arial";
+            ctx.fillText("Anode Chamber (Brine)", 130, 65);
+            ctx.fillText("Middle Chamber", 380, 65);
+            ctx.fillText("Decomposer (Water)", 570, 65);
+
+            ctx.font = "12px Arial";
+            ctx.fillText("Graphite Anodes (+)", 175, 110);
+            ctx.fillText("Flowing Mercury (Cathode)", 300, 385);
+            ctx.fillText("Iron Cathode", 585, 130);
+
+            // Gas Outlets
+            ctx.fillText("Cl₂ Gas ↗", 210, 100);
+            ctx.fillText("H₂ Gas ↗", 610, 100);
+            ctx.fillText("NaOH Solution Out ↘", 560, 375);
+
+            // --- Animated Bubbles ---
+            // Chlorine bubbles on left
+            ctx.fillStyle = "#00cc44";
+            for (let i = 0; i < 4; i++) {
+                let yPos = 240 - ((bubbleOffset1 + i * 30) % 120);
+                ctx.beginPath();
+                ctx.arc(200 + (i % 2) * 80, yPos, 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Hydrogen bubbles on right
+            ctx.fillStyle = "#ff6600";
+            for (let i = 0; i < 3; i++) {
+                let yPos = 260 - ((bubbleOffset2 + i * 40) % 120);
+                ctx.beginPath();
+                ctx.arc(620, yPos, 6, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function update() {
+            mercuryOffset += 1;
+            bubbleOffset1 += 1.5;
+            bubbleOffset2 += 1.5;
+            drawCell();
+            requestAnimationFrame(update);
+        }
+
+        update();
+    </script>
+
+</body>
+</html>
